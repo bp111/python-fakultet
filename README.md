@@ -1,3 +1,3 @@
 # python-fakultet
-Programowanie w języku Python
+Programowanie w języku Python<br>
 Bartosz Pliński, 286031
