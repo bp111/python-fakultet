@@ -16,6 +16,13 @@
         <a href="/">Home</a> |
         <a href="/about">About</a> |
         <a href="{% url 'entries:list' %}">My Journal</a> |
+        <a href="{% url 'entries:new-entry' %}">New Entry</a> |
+        <a href="{% url 'users:signup' %}">Sign Up</a> |
+        <a href="{% url 'users:login' %}">Sign in</a> |
+        <form action="{% url 'users:logout' %}" method="post">
+            {% csrf_token %}
+            <button>Log out</button>
+        </form>        
     </nav>
     <main>
         {% block content %}
