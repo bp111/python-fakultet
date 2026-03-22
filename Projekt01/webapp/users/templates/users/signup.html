@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Sign Up
+{% endblock %}    
+
+{% block content %}
+    <div class="container">
+        <h1>Create a new User Account</h1>
+        <form action="/users/sign-up/" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <button>Submit</button>
+        </form>
+    </div>
+{% endblock %}

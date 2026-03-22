@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Mood on {{ entry.entry_date }}
+{% endblock %}    
+
+{% block content %}
+    <div class="container">
+        <section>
+            <h1>{{ entry.entry_date }}</h1>                                       
+            <p>{{ entry.mood_score }}</p>
+            <p>{{ entry.body }}</p>                
+        </section>
+    </div>
+{% endblock %}
+

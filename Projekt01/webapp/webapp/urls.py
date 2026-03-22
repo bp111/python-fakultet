@@ -23,4 +23,5 @@ urlpatterns = [
     path('', views.home),
     path('about/', views.about),    
     path('entries/', include('entries.urls')),
+    path('users/', include('users.urls')),
 ]

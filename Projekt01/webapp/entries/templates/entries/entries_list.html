@@ -6,7 +6,16 @@
 
 {% block content %}
     <div class="container">
-        <h1>Journal entries</h1>        
+        <section>
+        <h1>Journal entries</h1>       
+        {% for entry in entries %} 
+            <article class="entry">
+                <h2><a href="{% url 'entries:page' slug=entry.slug %}">{{ entry.entry_date }}</a></h2>
+                <p>{{ entry.mood_score }}</p>
+                <p>{{ entry.body }}</p>
+            </article>
+        {% endfor %}
+        </section>
     </div>
 {% endblock %}
 
