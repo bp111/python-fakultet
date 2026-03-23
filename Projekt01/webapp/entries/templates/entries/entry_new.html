@@ -7,7 +7,12 @@
 {% block content %}
     <div class="container">
         <section>
-            <h1>New Entry</h1>        
+            <h1>New Entry</h1>     
+            <form method="post" action="{% url 'entries:new-entry' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Save Entry</button>
+            </form>   
         </section>
     </div>
 {% endblock %}

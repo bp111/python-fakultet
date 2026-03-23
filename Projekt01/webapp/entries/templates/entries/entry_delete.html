@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Delete Entry
+{% endblock %}    
+
+{% block content %}
+    <div class="container">
+        <section>
+            <h1>Delete Entry</h1> 
+            <p>Are you sure you want to delete the entry from {{ entry.entry_date|date:"F j, Y" }}?</p>            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Yes</button>
+            </form>
+            <br>
+            <a href="{% url 'entries:page' slug=entry.slug %}">No</a>
+        </section>
+    </div>
+{% endblock %}

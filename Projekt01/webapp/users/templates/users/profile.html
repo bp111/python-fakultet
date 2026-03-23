@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    My User Profile
+{% endblock %}    
+
+{% block content %}
+    <div class="container">
+        <section>
+            <h1>{{ user.username }}'s Profile Settings</h1> 
+            <p>Update your journal preferences below, please!</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Save changes</button>
+            </form>
+        </section>
+    </div>
+{% endblock %}

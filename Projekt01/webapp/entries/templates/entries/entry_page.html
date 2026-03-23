@@ -1,15 +1,24 @@
 {% extends 'layout.html' %}
 
 {% block title %}
-    Mood on {{ entry.entry_date }}
+    Mood on {{ entry.entry_date|date:"M d, Y" }}
 {% endblock %}    
 
 {% block content %}
     <div class="container">
         <section>
-            <h1>{{ entry.entry_date }}</h1>                                       
-            <p>{{ entry.mood_score }}</p>
-            <p>{{ entry.body }}</p>                
+            <h1>{{ entry.entry_date|date:"F j, Y" }}</h1>
+            <p><strong>Score:</strong> {{ entry.mood_score }}/10</p>
+            {% if entry.mood %}
+                <p><strong>Mood:</strong> {{ entry.mood.name }}</p>
+            {% endif %}
+            <hr>                                                 
+            <p>{{ entry.content }}</p>                
+            <br>
+            <div style="margin-top: 20px;">
+                <a href="{% url 'entries:edit-entry' slug=entry.slug %}">Edit</a> | 
+                <a href="{% url 'entries:delete-entry' slug=entry.slug %}" style="color: #dc3545;">Delete</a>
+            </div>
         </section>
     </div>
 {% endblock %}

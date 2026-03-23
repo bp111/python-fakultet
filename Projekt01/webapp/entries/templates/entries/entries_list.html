@@ -1,19 +1,21 @@
 {% extends 'layout.html' %}
 
 {% block title %}
-    Journal entries
+    My Mood Journal
 {% endblock %}    
 
 {% block content %}
     <div class="container">
         <section>
-        <h1>Journal entries</h1>       
+        <h1>My Mood Journal</h1>       
         {% for entry in entries %} 
-            <article class="entry">
-                <h2><a href="{% url 'entries:page' slug=entry.slug %}">{{ entry.entry_date }}</a></h2>
-                <p>{{ entry.mood_score }}</p>
-                <p>{{ entry.body }}</p>
+            <article class="entry" style="border-bottom: 1px solid #eee; margin-bottom: 1.5rem; padding-bottom: 1rem;">
+                <h2><a href="{% url 'entries:page' slug=entry.slug %}">{{ entry.entry_date|date:"F j, Y" }}</a></h2>
+                <p><strong>Score:</strong> {{ entry.mood_score }} | <strong>Mood:</strong> {{ entry.mood.name|default:"Unknown" }}</p>
+                <p>{{ entry.content|truncatewords:20 }}</p>
             </article>
+        {% empty %}
+            <p>You haven't added any entries yet. <a href="{% url 'entries:new-entry' %}">Create the first one!</a></p>
         {% endfor %}
         </section>
     </div>
