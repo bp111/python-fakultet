@@ -9,11 +9,21 @@
         <section>
         <h1>My Mood Journal</h1>       
         {% for entry in entries %} 
-            <article class="entry" style="border-bottom: 1px solid #eee; margin-bottom: 1.5rem; padding-bottom: 1rem;">
+            <article class="entry">
                 <h2><a href="{% url 'entries:page' slug=entry.slug %}">{{ entry.entry_date|date:"F j, Y" }}</a></h2>
-                <p><strong>Score:</strong> {{ entry.mood_score }} | <strong>Mood:</strong> {{ entry.mood.name|default:"Unknown" }}</p>
+                <p><strong>Score:</strong> {{ entry.mood_score }} | <strong>Mood:</strong> {{ entry.mood.name|default:"Uncategorized" }}</p>
+                
+                {% if entry.tags.all %}
+                    <p><small><strong>Tags:</strong> 
+                    {% for tag in entry.tags.all %}
+                        {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                    </small></p>
+                {% endif %}
+
                 <p>{{ entry.content|truncatewords:20 }}</p>
             </article>
+            <hr>
         {% empty %}
             <p>You haven't added any entries yet. <a href="{% url 'entries:new-entry' %}">Create the first one!</a></p>
         {% endfor %}

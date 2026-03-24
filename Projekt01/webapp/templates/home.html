@@ -6,7 +6,18 @@
 
 {% block content %}
     <div class="container">
-        <h1>Home</h1>
-        <p><a href="/about">Click here</a> for free candy!</p>
+        <h1>Who is Mood Journal for?</h1>
+        <p>
+            Mood Journal is for everybody wishing for an environment that allows you to 
+            calmly look inside yourself, focus on the emotions that you're experiencing 
+            and the mood that you're currently in. <br><br>
+            It is a perfect place to document your inward journeys, with a simple
+            and intuituve journal management system to help you remember the range
+            of emotions that converge into your one and only, precious self.
+        </p>
+        {% if not user.is_authenticated %}
+            <br>
+            <a href="{% url 'users:signup' %}">Join Us Today</a>
+        {% endif %}
     </div>
 {% endblock %}

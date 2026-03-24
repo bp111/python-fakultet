@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import JournalEntry
-from .forms import JournalEntryForm
+from .forms import JournalEntryForm, ReflectionForm
 
 @login_required(login_url="/users/login/")
 def entries_list(request):
@@ -57,3 +57,20 @@ def entry_delete(request, slug):
         return redirect('entries:list')
     
     return render(request, 'entries/entry_delete.html', {'entry': entry})
+
+@login_required(login_url="/users/login/")
+def entry_reflection(request, slug):  
+    entry = get_object_or_404(JournalEntry, slug=slug, user=request.user)        
+    existing_reflection = getattr(entry, 'reflection', None)
+    
+    if request.method == 'POST':
+        form = ReflectionForm(request.POST, instance=existing_reflection)
+        if form.is_valid():
+            reflection = form.save(commit=False)
+            reflection.entry = entry
+            reflection.save()
+            return redirect('entries:page', slug=entry.slug)
+    else:
+        form = ReflectionForm(instance=existing_reflection)
+        
+    return render(request, 'entries/new_reflection.html', {'form': form, 'entry': entry})

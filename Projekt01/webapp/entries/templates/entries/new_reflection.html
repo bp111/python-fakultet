@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Reflect on 
+    {{ entry.entry_date|date:"M d, Y" }} :&#41;
+{% endblock %}    
+
+{% block content %}
+    <div class="container">
+        <section>
+            <h1>Add a reflection :&#41;</h1> 
+            <p>Entry from: {{ entry.entry_date|date:"F j, Y" }}</p>
+            <hr>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Save</button>
+            </form>
+            <br>
+            <a href="{% url 'entries:page' slug=entry.slug %}">Cancel</a>
+        </section>
+    </div>
+{% endblock %}

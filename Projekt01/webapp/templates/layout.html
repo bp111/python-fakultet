@@ -13,8 +13,7 @@
 </head>
 <body>
     <nav>
-        <a href="/">Home</a> |
-        <a href="/about">About</a> |
+        <a href="/">Home</a> |        
         {% if user.is_authenticated %}
             <a href="{% url 'entries:list' %}">My Journal</a> |
             <a href="{% url 'entries:new-entry' %}">New Entry</a> |

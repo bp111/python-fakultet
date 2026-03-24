@@ -6,6 +6,9 @@ from .models import UserProfile
 from .forms import UserProfileForm
 
 def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect('entries:list')
+    
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -19,6 +22,9 @@ def signup_view(request):
     return render(request, "users/signup.html", { "form": form })
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('entries:list')
+    
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -31,6 +37,9 @@ def login_view(request):
     return render(request, "users/login.html", { "form": form })
 
 def logout_view(request):
+    if not request.user.is_authenticated or request.method == 'GET':
+        return redirect('/')
+    
     if request.method == 'POST':
         logout(request)
         return redirect('/')

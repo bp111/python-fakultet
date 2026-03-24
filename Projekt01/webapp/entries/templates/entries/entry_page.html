@@ -1,25 +1,47 @@
 {% extends 'layout.html' %}
 
-{% block title %}
-    Mood on {{ entry.entry_date|date:"M d, Y" }}
-{% endblock %}    
+{% block title %}Mood on {{ entry.entry_date|date:"M d, Y" }}{% endblock %}    
 
 {% block content %}
     <div class="container">
         <section>
-            <h1>{{ entry.entry_date|date:"F j, Y" }}</h1>
+            <h1>{{ entry.entry_date|date:"F j, Y" }}</h1>                                       
             <p><strong>Score:</strong> {{ entry.mood_score }}/10</p>
+            
             {% if entry.mood %}
                 <p><strong>Mood:</strong> {{ entry.mood.name }}</p>
             {% endif %}
-            <hr>                                                 
-            <p>{{ entry.content }}</p>                
+
+            {% if entry.tags.all %}
+                <p><strong>Tags:</strong> 
+                {% for tag in entry.tags.all %}
+                    {{ tag.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                </p>
+            {% endif %}
+
+            <hr>
+            <p>{{ entry.content }}</p> 
+            
+            <hr>
+            {% if entry.reflection %}
+                <div class="reflection">
+                    <h3>Hindsight Reflection</h3>
+                    <blockquote>"{{ entry.reflection.notes }}"</blockquote>
+                    <p><small>Added on {{ entry.reflection.created_at|date:"M d, Y" }}</small></p>
+                    <a href="{% url 'entries:reflect' slug=entry.slug %}">Edit Reflection</a>
+                </div>
+            {% else %}
+                <div>
+                    <a href="{% url 'entries:reflect' slug=entry.slug %}">+ Add a Reflection</a>
+                </div>
+            {% endif %}
+            
             <br>
-            <div style="margin-top: 20px;">
-                <a href="{% url 'entries:edit-entry' slug=entry.slug %}">Edit</a> | 
-                <a href="{% url 'entries:delete-entry' slug=entry.slug %}" style="color: #dc3545;">Delete</a>
+            <div class="entry-actions">
+                <a href="{% url 'entries:edit-entry' slug=entry.slug %}">Edit Entry</a> | 
+                <a href="{% url 'entries:delete-entry' slug=entry.slug %}">Delete Entry</a>
             </div>
         </section>
     </div>
 {% endblock %}
-

@@ -28,7 +28,7 @@ class JournalEntry(models.Model):
 
 class Reflection(models.Model):    
     entry = models.OneToOneField(JournalEntry, on_delete=models.CASCADE, related_name='reflection')
-    notes = models.TextField(help_text="How do you remember this time?")
+    notes = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

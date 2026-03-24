@@ -8,7 +8,10 @@
     <div class="container">
         <section>
             <h1>{{ user.username }}'s Profile Settings</h1> 
-            <p>Update your journal preferences below, please!</p>
+            <p>
+                Please, don't hesitate to tell us more about yourself ;&#41;
+                You can do it here:
+            </p>                        
             <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}

@@ -9,4 +9,5 @@ urlpatterns = [
     path('<slug:slug>', views.entry_page, name="page"),  
     path('<slug:slug>/edit/', views.entry_edit, name='edit-entry'),
     path('<slug:slug>/delete/', views.entry_delete, name='delete-entry'),
+    path('<slug:slug>/reflect/', views.entry_reflection, name='reflect'),
 ]
