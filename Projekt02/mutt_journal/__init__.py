@@ -18,9 +18,13 @@ def create_app(test_config=None):
     os.makedirs(app.instance_path, exist_ok=True)   # creates instance folder    
     
     from . import db
-    db.init_app(app)
+    db.init_app(app)    
 
     from . import auth
     app.register_blueprint(auth.bp)
     
+    from . import journal
+    app.register_blueprint(journal.bp)
+    app.add_url_rule('/', endpoint='index')
+
     return app

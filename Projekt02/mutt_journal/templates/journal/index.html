@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Issues{% endblock %}</h1>  
+{% endblock %}
+
+{% block content %}
+  {% for issue in issues %}
+    {% if not issue['paid'] or g.user %}    
+        <article class="issue">
+            <header>
+                <div>
+                    <h1>{{ issue['title'] }}</h1>
+                    <div class="about">Tag: {{ issue['tag'] }}, added on {{ issue['created'].strftime('%Y-%m-%d') }}</div>
+                </div>        
+            </header>
+            <p class="body">{{ issue['body'] }}</p>
+        </article>
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endif %}    
+  {% endfor %}
+{% endblock %}
