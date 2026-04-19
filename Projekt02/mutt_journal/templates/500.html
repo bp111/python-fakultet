@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error{% endblock %}
+
+{% block content %}
+    <h1>500</h1>
+    <h2>Ouch, seems like we messed up here.</h2>
+    <p>Please try again later.</p>
+    <br>
+    <a href="{{ url_for('index') }}" style="color: #377ba8; font-weight: bold;">Return Home</a>
+{% endblock %}

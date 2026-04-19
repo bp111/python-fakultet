@@ -15,6 +15,45 @@
                 </div>        
             </header>
             <p class="body">{{ issue['body'] }}</p>
+
+           <div class="comments-section" style="margin-top: 20px; padding-left: 15px; border-left: 3px solid #eee;">
+                <h3 style="font-size: 1.1em; color: #555;">Comments</h3>
+                
+                {% if g.user %} 
+                    <form action="{{ url_for('journal.add_comment', id=issue['id']) }}" method="post" style="margin-bottom: 20px; flex-direction: row; align-items: start; gap: 10px;">
+                        <textarea name="body" required placeholder="Add a comment..." style="flex: 1; min-height: 2.5em; margin: 0;"></textarea>
+                        <input type="submit" value="Comment" style="min-width: auto; padding: 0.5em 1em; margin: 0;">
+                    </form>
+                {% else %}
+                    <p style="font-size: 0.9em; color: #666;"><a href="{{ url_for('auth.login') }}">Log in</a> to leave a comment.</p>
+                {% endif %}
+
+                {% for comment in comments.get(issue['id'], []) %}
+                    <div class="comment" style="margin-bottom: 15px;">
+                        <strong>{{ comment['username'] }}</strong> 
+                        <span style="font-size: 0.8em; color: gray;">{{ comment['created'].strftime('%Y-%m-%d %H:%M') }}</span>
+                        
+                        <p id="comment-body-{{ comment['id'] }}" style="margin: 5px 0;">{{ comment['body'] }}</p>
+                        
+                        {% if g.user and g.user['id'] == comment['author_id'] %}
+                            <div style="font-size: 0.8em; display: flex; gap: 10px;">
+                                <a href="javascript:void(0);" onclick="toggleEdit({{ comment['id'] }})">Edit</a>
+                                <form action="{{ url_for('journal.delete_comment', id=comment['id']) }}" method="post" style="margin: 0;">
+                                    <button type="submit" style="background: none; border: none; color: #cc2f2e; cursor: pointer; padding: 0; text-decoration: underline; font-size: 1em;">Delete</button>
+                                </form>
+                            </div>
+
+                            <form id="edit-form-{{ comment['id'] }}" action="{{ url_for('journal.edit_comment', id=comment['id']) }}" method="post" style="display: none; margin-top: 5px; flex-direction: column; gap: 5px;">
+                                <textarea name="body" required style="width: 100%; min-height: 3em; margin: 0;">{{ comment['body'] }}</textarea>
+                                <div style="display: flex; gap: 5px;">
+                                    <input type="submit" value="Save" style="min-width: auto; padding: 0.3em 1em; margin: 0;">
+                                    <button type="button" onclick="toggleEdit({{ comment['id'] }})" style="padding: 0.3em 1em;">Cancel</button>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div> 
         </article>
         {% if not loop.last %}
             <hr>

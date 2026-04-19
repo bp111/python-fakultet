@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Page Not Found{% endblock %}
+
+{% block content %}
+    <h1>404</h1>
+    <h2>Sorry, we don't serve this page.</h2>
+    <p>Please choose another item from the menu.</p>
+    <br>
+    <a href="{{ url_for('index') }}" style="color: #377ba8; font-weight: bold;">Return Home</a>
+{% endblock %}

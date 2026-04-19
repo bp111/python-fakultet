@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
 
 def create_app(test_config=None):
     # create, config app
@@ -26,5 +26,19 @@ def create_app(test_config=None):
     from . import journal
     app.register_blueprint(journal.bp)
     app.add_url_rule('/', endpoint='index')
+
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        return render_template('500.html'), 500
+    
+    from flask_admin import Admin
+    from .admin import SecureAdminIndexView, IssueAdminView
+
+    admin = Admin(app, name='admin', index_view=SecureAdminIndexView())
+    admin.add_view(IssueAdminView(name='Add Issue', endpoint='issue_admin'))
 
     return app
