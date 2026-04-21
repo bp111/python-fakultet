@@ -4,6 +4,7 @@ version = "1.0.0"
 description = "Digital journal for dogs to read and have some fun in their silly life."
 dependencies = [ 
     "flask",
+    "markdown",
 ]
 
 [build-system]

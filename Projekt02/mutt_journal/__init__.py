@@ -8,6 +8,8 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',   # should be changed for deployment
         DATABASE=os.path.join(app.instance_path, 'mutt_journal.sqlite'),
+        UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'uploads'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024 # so max 16MB
     )
 
     if test_config is None:
@@ -16,6 +18,7 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     os.makedirs(app.instance_path, exist_ok=True)   # creates instance folder    
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     from . import db
     db.init_app(app)    
@@ -39,6 +42,6 @@ def create_app(test_config=None):
     from .admin import SecureAdminIndexView, IssueAdminView
 
     admin = Admin(app, name='admin', index_view=SecureAdminIndexView())
-    admin.add_view(IssueAdminView(name='Add Issue', endpoint='issue_admin'))
+    admin.add_view(IssueAdminView(name='Add Issue', endpoint='issue_admin'))    
 
     return app

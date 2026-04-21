@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{{ issue['title'] }}</h1>  
+  <div class="about">Published on {{ issue['created'].strftime('%Y-%m-%d') }}</div>
+{% endblock %}
+
+{% block content %}
+  <article class="post" style="margin-bottom: 40px;">
+    {% if issue['thumbnail'] %}
+        <img src="{{ url_for('static', filename='uploads/' + issue['thumbnail']) }}" style="max-width: 100%; max-height: 400px; border-radius: 8px; margin-bottom: 20px;">
+    {% endif %}
+    
+    <div class="body" style="line-height: 1.6;">
+        {{ body_html|safe }}
+    </div>
+  </article>
+
+  <hr>
+
+  <div class="comments-section" style="margin-top: 20px;">
+      <h3>Comments</h3>
+      
+      {% if g.user %} 
+          <form action="{{ url_for('journal.add_comment', id=issue['id']) }}" method="post" style="margin-bottom: 30px; display: flex; gap: 10px;">
+              <textarea name="body" required placeholder="Bark your thoughts..." style="flex: 1; min-height: 3em; margin: 0;"></textarea>
+              <input type="submit" value="Comment" style="min-width: auto; padding: 0.5em 1em; margin: 0;">
+          </form>
+      {% else %}
+          <p><a href="{{ url_for('auth.login') }}">Log in</a> to leave a comment.</p>
+      {% endif %}
+
+      {% for comment in comments %}
+          <div class="comment" style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+              <strong>{{ comment['username'] }}</strong> 
+              <span style="font-size: 0.8em; color: gray;">{{ comment['created'].strftime('%Y-%m-%d %H:%M:%S') }}</span>
+              
+              <p id="comment-body-{{ comment['id'] }}" style="margin: 5px 0;">{{ comment['body'] }}</p>
+              
+              {% if g.user and g.user['id'] == comment['author_id'] %}
+                  <div style="font-size: 0.8em; display: flex; gap: 10px;">
+                      <a href="javascript:void(0);" onclick="toggleEdit({{ comment['id'] }})">Edit</a>
+                      <form action="{{ url_for('journal.delete_comment', id=comment['id']) }}" method="post" style="margin: 0;">
+                          <button type="submit" style="background: none; border: none; color: #cc2f2e; cursor: pointer; padding: 0; text-decoration: underline; font-size: 1em;">Delete</button>
+                      </form>
+                  </div>
+
+                  <form id="edit-form-{{ comment['id'] }}" action="{{ url_for('journal.edit_comment', id=comment['id']) }}" method="post" style="display: none; margin-top: 5px; flex-direction: column; gap: 5px;">
+                      <textarea name="body" required style="width: 100%; min-height: 3em; margin: 0;">{{ comment['body'] }}</textarea>
+                      <div style="display: flex; gap: 5px;">
+                          <input type="submit" value="Save" style="min-width: auto; padding: 0.3em 1em; margin: 0;">
+                          <button type="button" onclick="toggleEdit({{ comment['id'] }})" style="padding: 0.3em 1em;">Cancel</button>
+                      </div>
+                  </form>
+              {% endif %}
+          </div>
+      {% endfor %}
+  </div> 
+
+  <script>
+      function toggleEdit(commentId) {
+          const bodyText = document.getElementById(`comment-body-${commentId}`);
+          const editForm = document.getElementById(`edit-form-${commentId}`);
+          
+          if (editForm.style.display === "none") {
+              editForm.style.display = "flex";
+              bodyText.style.display = "none";
+          } else {
+              editForm.style.display = "none";
+              bodyText.style.display = "block";
+          }
+      }
+  </script>
+{% endblock %}

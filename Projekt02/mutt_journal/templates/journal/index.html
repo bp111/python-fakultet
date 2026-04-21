@@ -1,63 +1,70 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Issues{% endblock %}</h1>  
+  <h1>{% block title %}Latest Issues{% endblock %}</h1>  
 {% endblock %}
 
 {% block content %}
+  {% if not issues %}
+      <p style="text-align: center; color: gray; margin-top: 40px;">No issues were published in this month. Try another one!</p>
+  {% endif %}
   {% for issue in issues %}
-    {% if not issue['paid'] or g.user %}    
-        <article class="issue">
+    <article class="issue" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
+        
+        <div style="flex-shrink: 0; width: 150px;">
+            {% if issue['thumbnail'] %}
+                <img src="{{ url_for('static', filename='uploads/' + issue['thumbnail']) }}" alt="Thumbnail" style="width: 100%; border-radius: 8px;">
+            {% else %}
+                <div style="width: 100%; height: 100px; background: #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #888;">No Image</div>
+            {% endif %}
+        </div>
+
+        <div style="flex-grow: 1;">
             <header>
-                <div>
-                    <h1>{{ issue['title'] }}</h1>
-                    <div class="about">Tag: {{ issue['tag'] }}, added on {{ issue['created'].strftime('%Y-%m-%d') }}</div>
-                </div>        
+                <h2 style="margin-top: 0; margin-bottom: 5px;">
+                    <a href="{{ url_for('journal.issue_detail', id=issue['id']) }}" style="text-decoration: none;">{{ issue['title'] }}</a>
+                    {% if issue['paid'] %}
+                        <span style="font-size: 0.6em; background: gold; color: black; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">Exclusive</span>
+                    {% endif %}
+                </h2>
+                <div class="about" style="margin-bottom: 10px;">{{ issue['created'].strftime('%Y-%m-%d') }}</div>
             </header>
-            <p class="body">{{ issue['body'] }}</p>
-
-           <div class="comments-section" style="margin-top: 20px; padding-left: 15px; border-left: 3px solid #eee;">
-                <h3 style="font-size: 1.1em; color: #555;">Comments</h3>
-                
-                {% if g.user %} 
-                    <form action="{{ url_for('journal.add_comment', id=issue['id']) }}" method="post" style="margin-bottom: 20px; flex-direction: row; align-items: start; gap: 10px;">
-                        <textarea name="body" required placeholder="Add a comment..." style="flex: 1; min-height: 2.5em; margin: 0;"></textarea>
-                        <input type="submit" value="Comment" style="min-width: auto; padding: 0.5em 1em; margin: 0;">
-                    </form>
-                {% else %}
-                    <p style="font-size: 0.9em; color: #666;"><a href="{{ url_for('auth.login') }}">Log in</a> to leave a comment.</p>
-                {% endif %}
-
-                {% for comment in comments.get(issue['id'], []) %}
-                    <div class="comment" style="margin-bottom: 15px;">
-                        <strong>{{ comment['username'] }}</strong> 
-                        <span style="font-size: 0.8em; color: gray;">{{ comment['created'].strftime('%Y-%m-%d %H:%M') }}</span>
-                        
-                        <p id="comment-body-{{ comment['id'] }}" style="margin: 5px 0;">{{ comment['body'] }}</p>
-                        
-                        {% if g.user and g.user['id'] == comment['author_id'] %}
-                            <div style="font-size: 0.8em; display: flex; gap: 10px;">
-                                <a href="javascript:void(0);" onclick="toggleEdit({{ comment['id'] }})">Edit</a>
-                                <form action="{{ url_for('journal.delete_comment', id=comment['id']) }}" method="post" style="margin: 0;">
-                                    <button type="submit" style="background: none; border: none; color: #cc2f2e; cursor: pointer; padding: 0; text-decoration: underline; font-size: 1em;">Delete</button>
-                                </form>
-                            </div>
-
-                            <form id="edit-form-{{ comment['id'] }}" action="{{ url_for('journal.edit_comment', id=comment['id']) }}" method="post" style="display: none; margin-top: 5px; flex-direction: column; gap: 5px;">
-                                <textarea name="body" required style="width: 100%; min-height: 3em; margin: 0;">{{ comment['body'] }}</textarea>
-                                <div style="display: flex; gap: 5px;">
-                                    <input type="submit" value="Save" style="min-width: auto; padding: 0.3em 1em; margin: 0;">
-                                    <button type="button" onclick="toggleEdit({{ comment['id'] }})" style="padding: 0.3em 1em;">Cancel</button>
-                                </div>
-                            </form>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div> 
-        </article>
-        {% if not loop.last %}
-            <hr>
-        {% endif %}
-    {% endif %}    
+            
+            <p class="summary" style="margin-top: 0;">{{ issue['summary'] }}</p>
+            <a href="{{ url_for('journal.issue_detail', id=issue['id']) }}" style="font-weight: bold;">Read full issue &rarr;</a>
+        </div>
+    </article>
+    
+    {% if not loop.last %}
+        <hr style="margin-bottom: 20px;">
+    {% endif %}   
   {% endfor %}
+  {% if total_pages > 0 %}
+    <div style="display: flex; justify-content: center; align-items: center; margin-top: 30px; background: #f5f5f5; padding: 15px; border-radius: 8px; border: 1px solid #ddd; gap: 20px;">
+        
+        {% if page > 1 %}
+            <a href="{{ url_for('journal.index', page=page-1) }}" style="text-decoration: none; font-weight: bold; font-size: 1.1em;">&larr; Next Month</a>
+        {% else %}
+            <span style="color: gray; font-size: 1.1em;">&larr; Next Month</span>
+        {% endif %}
+
+        <div style="display: flex; gap: 8px;">
+          {% for p in range(start_page, end_page + 1) %}
+              {% if p == page %}
+                  <span style="font-weight: bold; padding: 5px 12px; background: #377ba8; color: white; border-radius: 20px;">{{ p }}</span>
+              {% else %}
+                  <a href="{{ url_for('journal.index', page=p) }}" style="text-decoration: none; padding: 5px 12px; border-radius: 20px; border: 1px solid #ccc; background: white; color: #333;">{{ p }}</a>
+              {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('journal.index', page=page+1) }}" style="text-decoration: none; font-weight: bold; font-size: 1.1em;">Prev Month &rarr;</a>
+        {% else %}
+            <span style="color: gray; font-size: 1.1em;">Prev Month &rarr;</span>
+        {% endif %}
+    </div>
+  {% else %}
+      <p style="text-align: center; color: gray; margin-top: 40px;">No issues have been published yet!</p>
+  {% endif %}
 {% endblock %}

@@ -2,21 +2,31 @@
 
 {% block body %}
     <h2>Add New Journal Issue</h2>
-    <form method="POST" style="max-width: 600px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+    <form method="POST" enctype="multipart/form-data" style="max-width: 600px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
         <div>
             <strong>{{ form.title.label }}</strong><br>
             {{ form.title(style="width: 100%; padding: 5px;") }}
+        </div>
+        
+        <div>
+            <strong>{{ form.created.label }}</strong><br>
+            {{ form.created(type="date", style="width: 100%; padding: 5px;") }}
+        </div>
+        
+        <div>
+            <strong>{{ form.summary.label }}</strong><br>
+            {{ form.summary(rows=3, style="width: 100%; padding: 5px;") }}
         </div>
         <div>
             <strong>{{ form.body.label }}</strong><br>
             {{ form.body(rows=10, style="width: 100%; padding: 5px;") }}
         </div>
         <div>
-            {{ form.paid() }} <strong>{{ form.paid.label }}</strong>
+            <strong>{{ form.thumbnail.label }}</strong><br>
+            <input type="file" name="thumbnail" accept="image/*">
         </div>
         <div>
-            <strong>{{ form.tag.label }}</strong><br>
-            {{ form.tag(style="width: 100%; padding: 5px;") }}
+            {{ form.paid() }} <strong>{{ form.paid.label }}</strong>
         </div>
         <button type="submit" style="padding: 10px; background-color: #377ba8; color: white; border: none; cursor: pointer; width: 120px;">Add Issue</button>
     </form>
