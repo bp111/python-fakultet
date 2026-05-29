@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn ML Pipeline</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f4f9; padding: 20px; max-width: 1200px; margin: 0 auto; color: #333; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+        .controls button { padding: 10px 20px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; color: white; margin-left: 10px; transition: opacity 0.2s;}
+        .controls button:hover { opacity: 0.9; }
+        #runBtn { background-color: #28a745; }
+        #runBtn:disabled { background-color: #6c757d; cursor: not-allowed; }
+        #cancelBtn { background-color: #dc3545; display: none; }
+        .dashboard { display: flex; gap: 20px; }
+        .terminal-container { flex: 1; background: #1e1e1e; border-radius: 6px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .terminal-container h3 { color: #fff; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;}
+        pre#console { color: #00ff00; height: 600px; overflow-y: auto; font-family: 'Courier New', Courier, monospace; margin: 0; white-space: pre-wrap; font-size: 14px;}
+        .visuals-container { flex: 1.5; background: #fff; border-radius: 6px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 600px; overflow-y: auto;}
+        .visuals-container h3 { margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+                
+        #images {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        #images img { 
+            width: 95%;
+            max-width: 700px;
+            border: 1px solid #eee; 
+            border-radius: 4px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        #images img:hover {
+            transform: scale(1.02);
+        }
+        
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 9999; 
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); 
+            cursor: zoom-out; 
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%; 
+            max-height: 90vh; 
+            margin-top: 5vh;
+            border-radius: 8px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Telecom Churn Predictor Pipeline</h2>
+        <div class="controls">
+            <button id="runBtn" onclick="startPipeline()">Run Pipeline</button>
+            <button id="cancelBtn" onclick="stopPipeline()">Cancel Process</button>
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <div class="terminal-container">
+            <h3>Live Console Output</h3>
+            <pre id="console">Awaiting start...</pre>
+        </div>
+        
+        <div class="visuals-container">
+            <h3>Generated Reports & Graphics</h3>
+            <div id="images"></div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="this.style.display='none'">
+        <span class="close-btn">&times;</span>
+        <img class="modal-content" id="fullSizeImage">
+    </div>
+
+    <script>
+        let eventSource;
+        const runBtn = document.getElementById('runBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const consoleEl = document.getElementById('console');
+        const imagesEl = document.getElementById('images');
+        
+        imagesEl.addEventListener('click', function(e) {
+            if (e.target && e.target.nodeName === 'IMG') {
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('fullSizeImage');
+                modal.style.display = "block";
+                modalImg.src = e.target.src; 
+            }
+        });
+
+        function startPipeline() {
+            consoleEl.innerText = '';
+            imagesEl.innerHTML = '';
+            runBtn.disabled = true;
+            cancelBtn.style.display = 'inline-block';
+
+            // Connect to Flask SSE route
+            eventSource = new EventSource('/run');
+
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+
+                if (data.done) {
+                    closePipelineUI();
+                    return;
+                }
+
+                if (data.text) {
+                    consoleEl.innerText += data.text;
+                    consoleEl.scrollTop = consoleEl.scrollHeight; // Auto-scroll
+                }
+
+                if (data.image) {
+                    let img = document.createElement("img");
+                    // Append timestamp, tricking browser into bypassing cache for updated files
+                    img.src = data.image + "?t=" + new Date().getTime(); 
+                    imagesEl.appendChild(img);
+                    // Scroll down a bit so the user knows a new image loaded
+                    imagesEl.scrollTop = imagesEl.scrollHeight;
+                }
+            };
+
+            eventSource.onerror = function() {
+                consoleEl.innerText += "\n[Error] Lost connection to server or pipeline crashed.\n";
+                closePipelineUI();
+            };
+        }
+
+        function stopPipeline() {
+            cancelBtn.innerText = "Cancelling...";
+            fetch('/cancel', { method: 'POST' }).then(() => {
+                consoleEl.innerText += "\n[System] Cancellation request sent. Waiting for current task to halt...\n";
+            });
+        }
+
+        function closePipelineUI() {
+            if (eventSource) eventSource.close();
+            runBtn.disabled = false;
+            cancelBtn.style.display = 'none';
+            cancelBtn.innerText = "Cancel Process";
+        }
+    </script>
+</body>
+</html>
